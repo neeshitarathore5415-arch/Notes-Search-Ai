@@ -10,83 +10,57 @@ import { generateAnswer } from "../services/chat.service";
 const notesRoutes = new Hono();
 
 notesRoutes.post("/upload", async (c) => {
-    // Parse multipart/form-data request ------------------
-    const body = await c.req.parseBody();
+    try {
+        const body = await c.req.parseBody();
 
-    const file = body.file;
+        const file = body.file;
 
-    // Validate uploaded file --------------------
-    if (!(file instanceof File)) {
+        if (!(file instanceof File)) {
+            return c.json(
+                {
+                    success: false,
+                    message: "No PDF uploaded",
+                },
+                400
+            );
+        }
+
+        console.log("1. File received");
+
+        const filePath = await savePdf(file);
+        console.log("2. File saved");
+
+        const { text, chunks, embeddings } = await processPdf(filePath);
+        console.log("3. PDF processed");
+
+        const document = await saveDocument(
+            file.name.replace(".pdf", ""),
+            file.name,
+            chunks
+        );
+        console.log("4. Saved to DB");
+
+        await createCollection(embeddings[0].length);
+        console.log("5. Collection ready");
+
+        await storeVectors(document.id, chunks, embeddings);
+        console.log("6. Vectors stored");
+
+        return c.json({
+            success: true,
+        });
+
+    } catch (err) {
+        console.error(err);
+
         return c.json(
             {
                 success: false,
-                message: "No PDF uploaded",
+                error: err instanceof Error ? err.message : "Unknown error",
             },
-            400
+            500
         );
     }
-
-    // Build file path inside uploads directory -------------
-    const filePath = await savePdf(file);
-
-
-    const { text, chunks, embeddings } = await processPdf(filePath);
-
-    const document = await saveDocument(
-        file.name.replace(".pdf", ""),
-        file.name,
-        chunks
-    );
-
-    await createCollection(embeddings[0].length);
-
-    await storeVectors(
-        document.id,
-        chunks,
-        embeddings
-    );
-
-    return c.json({
-        success: true,
-        message: "PDF uploaded successfully",
-        document,
-        extractedCharacters: text.length,
-        totalChunks: chunks.length
-    });
-});
-
-notesRoutes.post("/search", async (c) => {
-
-    const { query } = await c.req.json();
-
-    if (!query) {
-        return c.json(
-            {
-                success: false,
-                message: "Query is required",
-            },
-            400
-        );
-    }
-
-    const results = await searchNotes(query);
-
-    const context = results
-    .map((item) => item.payload?.content)
-    .join("\n\n");
-
-
-    const answer = await generateAnswer(
-        query,
-        context
-    );
-
-    return c.json({
-        success: true,
-        message: "Search endpoint working",
-        answer,
-        results,
-    });
 });
 
 export default notesRoutes;
