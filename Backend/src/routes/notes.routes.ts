@@ -75,4 +75,33 @@ notesRoutes.post("/upload", async (c) => {
     }
 });
 
+notesRoutes.post("/search", async (c) => {
+
+    const { query } = await c.req.json();
+
+    if (!query) {
+        return c.json(
+            {
+                success: false,
+                message: "Query is required",
+            },
+            400
+        );
+    }
+
+    const results = await searchNotes(query);
+
+    const context = results
+        .map((item: any) => item.payload?.content)
+        .join("\n\n");
+
+    const answer = await generateAnswer(query, context);
+
+    return c.json({
+        success: true,
+        answer,
+        results,
+    });
+});
+
 export default notesRoutes;
