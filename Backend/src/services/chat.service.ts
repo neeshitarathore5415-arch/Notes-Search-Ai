@@ -38,7 +38,7 @@ export async function generateAnswer(
 
         console.log(response.data);
 
-        return response.data;
+        return response.data.message.content[0].text;
     } catch (error) {
         if (axios.isAxiosError(error)) {
             console.log("Status:", error.response?.status);
