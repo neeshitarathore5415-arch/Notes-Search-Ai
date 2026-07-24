@@ -1,21 +1,23 @@
 import qdrant from "../config/qdrant";
 
 export async function createCollection(vectorSize: number) {
-    const exists = await qdrant.collectionExists("notes");
-
-    if (exists.exists) {
+    try {
+        await qdrant.getCollection("notes");
         console.log("Collection already exists");
         return;
+    } catch (error: any) {
+        if (error.status === 404) {
+            await qdrant.createCollection("notes", {
+                vectors: {
+                    size: vectorSize,
+                    distance: "Cosine",
+                },
+            });
+            console.log("Qdrant collection created");
+        } else {
+            throw error;
+        }
     }
-
-    await qdrant.createCollection("notes", {
-        vectors: {
-            size: vectorSize,
-            distance: "Cosine",
-        },
-    });
-
-    console.log("Qdrant collection created");
 }
 
 export async function storeVectors(
