@@ -3,10 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
 const hono_1 = require("hono");
 const node_server_1 = require("@hono/node-server");
 const cors_1 = require("hono/cors");
 const prisma_1 = __importDefault(require("./config/prisma"));
+const qdrant_1 = require("./config/qdrant");
 const notes_routes_1 = __importDefault(require("./routes/notes.routes"));
 const app = new hono_1.Hono();
 app.use("*", (0, cors_1.cors)({
@@ -26,3 +28,6 @@ app.route("/notes", notes_routes_1.default);
     port: 5000,
 });
 console.log("Server is running on 5000");
+(0, qdrant_1.checkQdrantHealth)().catch(() => {
+    console.error("[Qdrant] Startup health check failed");
+});

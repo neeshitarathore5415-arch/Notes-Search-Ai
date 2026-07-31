@@ -1,7 +1,9 @@
+import "dotenv/config";
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
 import prisma from "./config/prisma";
+import { checkQdrantHealth } from "./config/qdrant";
 import notesRoutes from "./routes/notes.routes";
 
 const app = new Hono();
@@ -31,3 +33,7 @@ serve({
 });
 
 console.log("Server is running on 5000");
+
+checkQdrantHealth().catch(() => {
+    console.error("[Qdrant] Startup health check failed");
+});

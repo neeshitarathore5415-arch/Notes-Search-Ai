@@ -7,18 +7,25 @@ exports.createCollection = createCollection;
 exports.storeVectors = storeVectors;
 const qdrant_1 = __importDefault(require("../config/qdrant"));
 async function createCollection(vectorSize) {
-    const exists = await qdrant_1.default.collectionExists("notes");
-    if (exists.exists) {
+    try {
+        await qdrant_1.default.getCollection("notes");
         console.log("Collection already exists");
         return;
     }
-    await qdrant_1.default.createCollection("notes", {
-        vectors: {
-            size: vectorSize,
-            distance: "Cosine",
-        },
-    });
-    console.log("Qdrant collection created");
+    catch (error) {
+        if (error.status === 404) {
+            await qdrant_1.default.createCollection("notes", {
+                vectors: {
+                    size: vectorSize,
+                    distance: "Cosine",
+                },
+            });
+            console.log("Qdrant collection created");
+        }
+        else {
+            throw error;
+        }
+    }
 }
 async function storeVectors(documentId, chunks, embeddings) {
     await qdrant_1.default.upsert("notes", {
