@@ -42,9 +42,9 @@ export default function SearchForm({
             const result = await searchNotes(query);
 
             const aiAnswer = result.answer;
-            console.log("Answer:", result.answer);
-            console.log("Text:", result.answer.message.content[0].text);
-            console.log("Type:", typeof result.answer.message.content[0].text);
+            console.log("Answer:", aiAnswer);
+            // console.log("Text:", result.answer.message.content[0].text);
+            console.log("Type:", typeof aiAnswer);
 
             const sources = result.results.map((item: any) => ({
                 documentId: item.payload.documentId,
