@@ -76,7 +76,6 @@ notesRoutes.post("/upload", async (c) => {
 });
 
 notesRoutes.post("/search", async (c) => {
-
     try {
         const { query } = await c.req.json();
 
@@ -107,12 +106,21 @@ notesRoutes.post("/search", async (c) => {
             answer,
             results,
         });
-        
+
     } catch (err: any) {
 
-        console.error("SEARCH ERROR");
-        console.error(err.response?.data);
-        console.error(err.message);
+        console.error("========== SEARCH ERROR ==========");
+        console.error(err);
+
+        if (err.response) {
+            console.error("Status:", err.response.status);
+            console.error(
+                "Data:",
+                JSON.stringify(err.response.data, null, 2)
+            );
+        }
+
+        console.error("=================================");
 
         return c.json(
             {
@@ -123,4 +131,5 @@ notesRoutes.post("/search", async (c) => {
         );
     }
 });
+
 export default notesRoutes;
