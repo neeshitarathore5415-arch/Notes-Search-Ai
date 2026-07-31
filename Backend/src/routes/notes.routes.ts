@@ -77,35 +77,50 @@ notesRoutes.post("/upload", async (c) => {
 
 notesRoutes.post("/search", async (c) => {
 
-    const { query } = await c.req.json();
+    try {
+        const { query } = await c.req.json();
 
-    if (!query) {
+        if (!query) {
+            return c.json(
+                {
+                    success: false,
+                    message: "Query is required",
+                },
+                400
+            );
+        }
+
+        const results = await searchNotes(query);
+
+        const context = results
+            .map((item: any) => item.payload?.content)
+            .join("\n\n");
+
+        const answer = await generateAnswer(query, context);
+
+        console.log("========== ANSWER ==========");
+        console.dir(answer, { depth: null });
+        console.log("============================");
+
+        return c.json({
+            success: true,
+            answer,
+            results,
+        });
+        
+    } catch (err: any) {
+
+        console.error("SEARCH ERROR");
+        console.error(err.response?.data);
+        console.error(err.message);
+
         return c.json(
             {
                 success: false,
-                message: "Query is required",
+                error: err.response?.data || err.message,
             },
-            400
+            500
         );
     }
-
-    const results = await searchNotes(query);
-
-    const context = results
-        .map((item: any) => item.payload?.content)
-        .join("\n\n");
-
-    const answer = await generateAnswer(query, context);
-
-    console.log("========== ANSWER ==========");
-    console.dir(answer, { depth: null });
-    console.log("============================");
-
-    return c.json({
-        success: true,
-        answer,
-        results,
-    });
 });
-
 export default notesRoutes;

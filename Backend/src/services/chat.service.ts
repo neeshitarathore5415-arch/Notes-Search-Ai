@@ -42,7 +42,13 @@ export async function generateAnswer(
     } catch (error) {
         if (axios.isAxiosError(error)) {
             console.log("Status:", error.response?.status);
-            console.log("Data:", error.response?.data);
+            console.log("Headers:", error.response?.headers);
+            console.log(
+                "Data:",
+                JSON.stringify(error.response?.data, null, 2)
+            );
+        } else {
+            console.log(error);
         }
 
         throw error;
