@@ -97,10 +97,6 @@ notesRoutes.post("/search", async (c) => {
 
         const answer = await generateAnswer(query, context);
 
-        console.log("========== ANSWER ==========");
-        console.dir(answer, { depth: null });
-        console.log("============================");
-
         return c.json({
             success: true,
             answer,

@@ -1,4 +1,3 @@
-import axios from "axios";
 import api from "../config/cohere";
 
 export async function generateAnswer(
@@ -36,21 +35,8 @@ export async function generateAnswer(
             }
         );
 
-        console.log(response.data);
-
         return response.data.message.content[0].text;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.log("Status:", error.response?.status);
-            console.log("Headers:", error.response?.headers);
-            console.log(
-                "Data:",
-                JSON.stringify(error.response?.data, null, 2)
-            );
-        } else {
-            console.log(error);
-        }
-
         throw error;
     }
 }
