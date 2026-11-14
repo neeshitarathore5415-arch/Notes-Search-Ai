@@ -42,9 +42,6 @@ export default function SearchForm({
             const result = await searchNotes(query);
 
             const aiAnswer = result.answer;
-            console.log("Answer:", aiAnswer);
-            // console.log("Text:", result.answer.message.content[0].text);
-            console.log("Type:", typeof aiAnswer);
 
             const sources = result.results.map((item: any) => ({
                 documentId: item.payload.documentId,
@@ -80,7 +77,6 @@ export default function SearchForm({
 
         } catch (error) {
 
-            console.error(error);
             toast.error("Something went wrong while searching.");
 
         } finally {

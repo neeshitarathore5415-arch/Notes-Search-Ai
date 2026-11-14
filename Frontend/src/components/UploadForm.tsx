@@ -25,16 +25,13 @@ export default function UploadForm({
 
             setLoading(true);
 
-            const result = await uploadPdf(file);
-            console.log(result);
+            await uploadPdf(file);
 
             toast.success("PDF Uploaded Successfully");
             onUploadSuccess(file.name);
             setFile(null);
 
         } catch (error) {
-            console.error(error);
-
             toast.error("Upload Failed");
 
         } finally {
